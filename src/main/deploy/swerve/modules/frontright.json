@@ -3,7 +3,7 @@
     "front": 12.25,
     "left": -12.25
   },
-  "absoluteEncoderOffset": 47.37312,
+  "absoluteEncoderOffset": 226.84572,
   "drive": {
     "type": "sparkmax",
     "id": 5,
