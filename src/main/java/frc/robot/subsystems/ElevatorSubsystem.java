@@ -1,43 +1,47 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    private final CANSparkMax leftMotor = new CANSparkMax(10, MotorType.kBrushless);
-    private final CANSparkMax rightMotor = new CANSparkMax(11, MotorType.kBrushless);
-    private final CANEncoder leftEncoder;
+    private final SparkMax leftMotor = new SparkMax(11, MotorType.kBrushless);
+    private final SparkMax rightMotor = new SparkMax(10, MotorType.kBrushless);
 
-    public ElevatorSubsystem() {
+    SparkMaxConfig configL = new SparkMaxConfig();
+    SparkMaxConfig configR = new SparkMaxConfig();
+
+    public void ElevatorSubsystem() {
         // Restore factory defaults for both motors
-        leftMotor.restoreFactoryDefaults();
-        rightMotor.restoreFactoryDefaults();
+        
+        configL.inverted(false).idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+        configR.inverted(true).idleMode(IdleMode.kBrake).follow(leftMotor).smartCurrentLimit(40);
 
-        // Set the right motor to follow the left motor
-        rightMotor.follow(leftMotor);
+        configL.softLimit
+        .forwardSoftLimit(48)
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimit(0)
+        .reverseSoftLimitEnabled(true);
+    
+        leftMotor.configure(configL, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightMotor.configure(configR, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // Set brake mode for holding position when stopped
-        leftMotor.setIdleMode(IdleMode.kBrake);
-        rightMotor.setIdleMode(IdleMode.kBrake);
+        // leftMotor.restoreFactoryDefaults();
+        // rightMotor.restoreFactoryDefaults();
 
-        // Set current limits to protect motors
-        leftMotor.setSmartCurrentLimit(40);
-        rightMotor.setSmartCurrentLimit(40);
 
         // Get the encoder for position tracking
-        leftEncoder = leftMotor.getEncoder();
+        leftMotor.getEncoder().setPosition(0);
 
         // Reset the encoder at startup
         resetEncoder();
 
-        // Optional: Set soft limits to avoid over-travel
-        leftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-        leftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
-        leftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 48); // Example upper limit
-        leftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);   // Example lower limit
     }
 
     // Move elevator up
@@ -57,12 +61,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // Reset encoder position
     public void resetEncoder() {
-        leftEncoder.setPosition(0);
+        leftMotor.getEncoder().setPosition(0);
     }
 
     // Get current elevator position
     public double getElevatorPosition() {
-        return leftEncoder.getPosition();
+        return leftMotor.getEncoder().getPosition();
     }
 
     @Override

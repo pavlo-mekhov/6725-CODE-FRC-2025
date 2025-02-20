@@ -27,20 +27,12 @@ public class RobotContainer {
         new CommandXboxController(OperatorConstants.kDriverControllerPort);
     private final XboxController controller = new XboxController(0);
 
-    // Default drive command
-    Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(m_driverController.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(m_driverController.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> m_driverController.getRightX(),
-        () -> m_driverController.getRightY()
-    );
-
     // Constructor
     public RobotContainer() {
-        coralSubsystem = new CoralSubsystem(21, 0);  // Example CAN ID 21, Controller Port 0
-
+        
         // Set default commands for subsystems
         drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+        coralSubsystem = new CoralSubsystem(21, 0);  // Example CAN ID 21, Controller Port 0
         coralSubsystem.setDefaultCommand(new RunCommand(coralSubsystem::periodic, coralSubsystem));
 
         // Elevator safety setup
@@ -50,6 +42,25 @@ public class RobotContainer {
         configureBindings();
     }
 
+  /**
+   * Use this method to define your trigger->command mappings. Triggers can be created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+   * predicate, or via the named factories in {@link
+   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
+   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+   * joysticks}.
+   */
+
+
+    // Default drive command
+    Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+        () -> MathUtil.applyDeadband(m_driverController.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(m_driverController.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+        () -> m_driverController.getRightX(),
+        () -> m_driverController.getRightY()
+    );
+    
     // Configure Xbox controller buttons for elevator control
     private void configureBindings() {
         // Gyro reset with D-pad down
